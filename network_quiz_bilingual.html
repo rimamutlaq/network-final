@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network Quiz — IT328</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080c14;
+  --surface: #0e1420;
+  --surface2: #141c2e;
+  --border: #1e2d45;
+  --accent: #4f8ef7;
+  --accent2: #7c3aed;
+  --correct: #059669;
+  --correct-bg: #022c22;
+  --wrong: #dc2626;
+  --wrong-bg: #2c0a0a;
+  --text: #e8edf5;
+  --muted: #5a6a85;
+  --ch4: #2563eb;
+  --ch5: #7c3aed;
+  --ch6: #0891b2;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-family: 'DM Sans', 'Tajawal', sans-serif;
+}
+
+/* ── HEADER ── */
+.header {
+  padding: 48px 24px 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: -60px; left: 50%;
+  transform: translateX(-50%);
+  width: 600px; height: 300px;
+  background: radial-gradient(ellipse, rgba(79,142,247,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.header-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.header h1 {
+  font-family: 'Syne', 'Tajawal', sans-serif;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+.header h1 span { color: var(--accent); }
+.header p { color: var(--muted); font-size: 0.9rem; }
+
+/* ── LANGUAGE TOGGLE ── */
+.lang-toggle {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+  width: fit-content;
+}
+.lang-btn {
+  padding: 8px 28px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-family: 'Syne', 'Tajawal', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.02em;
+}
+.lang-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ── CONTROLS ── */
+.controls {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 20px;
+}
+.controls-inner {
+  max-width: 820px;
+  margin: 0 auto;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.filter-group { display: flex; gap: 6px; flex-wrap: wrap; }
+.filter-sep {
+  width: 1px;
+  background: var(--border);
+  align-self: stretch;
+  margin: 0 4px;
+}
+.pill {
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-family: 'DM Sans', 'Tajawal', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.pill:hover { border-color: var(--accent); color: var(--text); }
+.pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.pill.ch4.active { background: var(--ch4); border-color: var(--ch4); }
+.pill.ch5.active { background: var(--ch5); border-color: var(--ch5); }
+.pill.ch6.active { background: var(--ch6); border-color: var(--ch6); }
+
+/* ── STATS ── */
+.stats-bar {
+  max-width: 820px;
+  margin: 16px auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.stat-item { font-size: 0.8rem; color: var(--muted); }
+.stat-item strong { color: var(--text); font-weight: 600; }
+.stat-item.correct strong { color: var(--correct); }
+.stat-item.wrong strong { color: var(--wrong); }
+.prog-track {
+  flex: 1;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.prog-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #818cf8);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+/* ── QUESTION CARDS ── */
+.qlist {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 0 20px 60px;
+}
+.q-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 22px;
+  margin-bottom: 12px;
+  transition: border-color 0.25s;
+}
+.q-card.answered-correct { border-color: var(--correct); }
+.q-card.answered-wrong { border-color: var(--wrong); }
+
+.q-meta {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.tag {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 9px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+.tag-ch4 { background: rgba(37,99,235,0.18); color: #93bbfd; }
+.tag-ch5 { background: rgba(124,58,237,0.18); color: #c4b5fd; }
+.tag-ch6 { background: rgba(8,145,178,0.18); color: #67e8f9; }
+.tag-hot { background: rgba(245,158,11,0.15); color: #fbbf24; }
+.tag-mcq { background: rgba(255,255,255,0.05); color: var(--muted); }
+.tag-tf { background: rgba(255,255,255,0.05); color: var(--muted); }
+.tag-fill { background: rgba(255,255,255,0.05); color: var(--muted); }
+.tag-year { background: rgba(255,255,255,0.04); color: var(--muted); }
+
+.q-text {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--text);
+  margin-bottom: 14px;
+  font-weight: 400;
+}
+.q-card[dir="rtl"] .q-text { font-family: 'Tajawal', sans-serif; font-size: 1rem; }
+
+/* OPTIONS */
+.options { display: flex; flex-direction: column; gap: 7px; }
+.opt {
+  padding: 10px 15px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.87rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+  line-height: 1.55;
+}
+.opt[dir="rtl"] { text-align: right; font-family: 'Tajawal', sans-serif; font-size: 0.92rem; }
+.opt:hover:not(:disabled) { border-color: var(--accent); color: var(--text); background: rgba(79,142,247,0.06); }
+.opt.correct { background: var(--correct-bg); border-color: var(--correct); color: #34d399; }
+.opt.wrong { background: var(--wrong-bg); border-color: var(--wrong); color: #f87171; }
+.opt:disabled { cursor: default; }
+
+/* TRUE / FALSE */
+.tf-row { display: flex; gap: 8px; }
+.tf-btn {
+  flex: 1; padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--muted);
+  font-family: 'DM Sans', 'Tajawal', sans-serif;
+  font-size: 0.88rem; font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tf-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--text); }
+.tf-btn.correct { background: var(--correct-bg); border-color: var(--correct); color: #34d399; }
+.tf-btn.wrong { background: var(--wrong-bg); border-color: var(--wrong); color: #f87171; }
+
+/* FILL */
+.fill-row { display: flex; gap: 8px; }
+.fill-input {
+  flex: 1; padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.87rem;
+  outline: none;
+}
+.fill-input:focus { border-color: var(--accent); }
+.check-btn {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-family: 'DM Sans', 'Tajawal', sans-serif;
+  font-size: 0.85rem; font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.check-btn:disabled { opacity: 0.35; cursor: default; }
+
+/* EXPLANATION */
+.exp {
+  margin-top: 12px;
+  padding: 11px 14px;
+  background: rgba(79,142,247,0.04);
+  border-left: 2px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.65;
+  display: none;
+}
+.exp.show { display: block; }
+.exp strong { color: var(--accent); }
+.q-card[dir="rtl"] .exp { border-left: none; border-right: 2px solid var(--accent); border-radius: 8px 0 0 8px; font-family: 'Tajawal', sans-serif; }
+
+/* RESET */
+.reset-wrap { text-align: center; padding: 10px 0 40px; }
+.reset-btn {
+  padding: 10px 32px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-family: 'DM Sans', 'Tajawal', sans-serif;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.reset-btn:hover { border-color: var(--accent); color: var(--text); }
+
+.no-q { text-align: center; color: var(--muted); padding: 80px 20px; font-size: 0.95rem; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-label">IT328 — Networks</div>
+  <h1>Final <span>Quiz</span></h1>
+  <p>Chapters 4 · 5 · 6 — All Previous Exams</p>
+</div>
+
+<div class="lang-toggle">
+  <button class="lang-btn active" id="btn-en" onclick="setLang('en')">English</button>
+  <button class="lang-btn" id="btn-ar" onclick="setLang('ar')">العربية</button>
+</div>
+
+<div class="controls">
+  <div class="controls-inner">
+    <div class="filter-group">
+      <button class="pill active" onclick="filterCh('all',this)">All</button>
+      <button class="pill ch4" onclick="filterCh('4',this)">Ch 4</button>
+      <button class="pill ch5" onclick="filterCh('5',this)">Ch 5</button>
+      <button class="pill ch6" onclick="filterCh('6',this)">Ch 6</button>
+    </div>
+    <div class="filter-sep"></div>
+    <div class="filter-group">
+      <button class="pill active" onclick="filterType('all',this)">All types</button>
+      <button class="pill" onclick="filterType('mcq',this)">MCQ</button>
+      <button class="pill" onclick="filterType('tf',this)">True / False</button>
+      <button class="pill" onclick="filterType('fill',this)">Fill</button>
+    </div>
+  </div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-item correct">Correct <strong id="sc">0</strong></div>
+  <div class="stat-item wrong">Wrong <strong id="sw">0</strong></div>
+  <div class="prog-track"><div class="prog-bar" id="prog" style="width:0%"></div></div>
+  <div class="stat-item">Total <strong id="st">0</strong></div>
+</div>
+
+<div class="qlist" id="qlist"></div>
+<div class="reset-wrap"><button class="reset-btn" onclick="resetAll()" id="reset-btn">Reset all</button></div>
+
+<script>
+let lang = 'en';
+let currentCh = 'all', currentType = 'all';
+let answered = {};
+let correct = 0, wrong = 0;
+
+const Q = [
+// ═══ CH4 ═══
+{id:1,ch:'4',type:'mcq',hot:true,year:'Repeated',
+en:{q:'What is the difference between the Data Plane and the Control Plane?',opts:['Data Plane determines routes; Control Plane forwards packets','Data Plane forwards packets locally; Control Plane determines end-to-end routes','Both do the same thing','Data Plane is software; Control Plane is hardware'],exp:'Data Plane = local per-router forwarding (hardware, nanoseconds). Control Plane = network-wide routing (software, milliseconds).'},
+ar:{q:'ما الفرق بين Data Plane وControl Plane؟',opts:['Data Plane يحدد المسار، Control Plane يوجه الـ packet','Data Plane يوجه الـ packet محلياً، Control Plane يحدد المسار','كلاهما يؤدي نفس المهمة','Data Plane سوفتوير، Control Plane هاردوير'],exp:'Data Plane = توجيه محلي داخل الروتر بالهاردوير. Control Plane = تحديد المسار الكامل بالسوفتوير.'},
+ans:1},
+
+{id:2,ch:'4',type:'mcq',hot:true,year:'1446',
+en:{q:'The forwarding function is the responsibility of the:',opts:['Data Plane','Control Plane','Both','None of the above'],exp:'Forwarding = Data Plane. Routing = Control Plane.'},
+ar:{q:'الـ forwarding function مسؤولية من؟',opts:['Data Plane','Control Plane','كلاهما','لا شيء مما سبق'],exp:'Forwarding = Data Plane. Routing = Control Plane.'},
+ans:0},
+
+{id:3,ch:'4',type:'mcq',hot:true,year:'1447',
+en:{q:'An IP address is associated with each:',opts:['Device','Router','Interface','Host'],exp:'IP address is associated with each interface. A router has multiple interfaces and therefore multiple IP addresses.'},
+ar:{q:'الـ IP address مرتبط بكل؟',opts:['جهاز','روتر','Interface','Host'],exp:'IP address مرتبط بكل interface وليس بالجهاز. الروتر عنده عدة interfaces وبالتالي عدة IP addresses.'},
+ans:2},
+
+{id:4,ch:'4',type:'mcq',hot:true,year:'1447',
+en:{q:'HOL (Head-of-Line) blocking means:',opts:['Output port queue is full','Queued datagram at front prevents others behind it from advancing','Router CPU is overloaded','Link speed mismatch'],exp:'HOL blocking: the datagram at the front of the queue blocks datagrams behind it, even if their output ports are available.'},
+ar:{q:'HOL blocking يعني؟',opts:['الـ output port ممتلئ','الـ datagram في مقدمة الـ queue يمنع الـ datagrams خلفه من التقدم','الـ CPU مشغول','تعارض سرعات'],exp:'HOL = Head of Line blocking. الـ datagram في المقدمة يمنع الـ datagrams خلفه حتى لو output ports خاصتهم متاحة.'},
+ans:1},
+
+{id:5,ch:'4',type:'mcq',hot:true,year:'Repeated',
+en:{q:'Which switching fabric allows forwarding multiple packets in parallel?',opts:['Memory','Bus','Crossbar','All of the above'],exp:'Crossbar allows multiple packets in parallel. Memory and Bus allow only one packet at a time.'},
+ar:{q:'أي Switching fabric يسمح بإرسال عدة packets في نفس الوقت؟',opts:['Memory','Bus','Crossbar','كلها'],exp:'Crossbar يسمح بـ multiple packets في parallel. Memory وBus يسمحان بـ packet واحد فقط في كل مرة.'},
+ans:2},
+
+{id:6,ch:'4',type:'mcq',hot:true,year:'1447',
+en:{q:'How many addresses are in a /26 subnet?',opts:['32','64','128','256'],exp:'32-26=6 host bits → 2^6=64 addresses.'},
+ar:{q:'كم عنوان في subnet بـ /26؟',opts:['32','64','128','256'],exp:'32 - 26 = 6 bits للـ host → 2^6 = 64 عنوان.'},
+ans:1},
+
+{id:7,ch:'4',type:'mcq',hot:true,year:'Repeated',
+en:{q:'Where does IP datagram reassembly occur?',opts:['At every router','Only at the source','Only at the final destination','At the first router after fragmentation'],exp:'Fragmentation can happen at source or routers, but reassembly happens ONLY at the final destination.'},
+ar:{q:'أين يتم reassembly للـ fragments؟',opts:['عند كل روتر','عند المصدر فقط','عند الوجهة النهائية فقط','عند أول روتر بعد التقطيع'],exp:'Fragmentation يحدث عند المصدر أو الروترات، لكن Reassembly يحدث ONLY at the final destination.'},
+ans:2},
+
+{id:8,ch:'4',type:'mcq',hot:true,year:'Repeated',
+en:{q:'A 4000-byte datagram (header=20, data=3980), MTU=1500. What is the offset of the second fragment?',opts:['0','185','370','1480'],exp:'Fragment 1: 1480 bytes, offset=0. Fragment 2: 1480 bytes, offset=1480/8=185. Fragment 3: 1020 bytes, offset=370.'},
+ar:{q:'Datagram 4000 bytes (header=20, data=3980)، MTU=1500. ما offset الـ fragment الثاني؟',opts:['0','185','370','1480'],exp:'Fragment 1: 1480 bytes data, offset=0. Fragment 2: 1480 bytes, offset=1480/8=185. Fragment 3: 1020 bytes, offset=370.'},
+ans:1},
+
+{id:9,ch:'4',type:'mcq',hot:true,year:'Repeated',
+en:{q:'Fragment offset is measured in units of:',opts:['Bytes','Bits','8 bytes','Kilobytes'],exp:'Fragment offset is measured in 8-byte units. The first byte of each fragment must be divisible by 8.'},
+ar:{q:'وحدة قياس الـ fragment offset؟',opts:['Bytes','Bits','8 bytes','Kilobytes'],exp:'Fragment offset يقاس بوحدات 8 bytes.'},
+ans:2},
+
+{id:10,ch:'4',type:'mcq',hot:true,year:'Repeated',
+en:{q:'Which of the following does DHCP NOT provide?',opts:['IP address','DNS server address','TCP/IP connection','First-hop router address'],exp:'DHCP provides: IP address, subnet mask, DNS server, first-hop router. It does NOT provide TCP/IP connection.'},
+ar:{q:'ما الذي لا يوفره DHCP؟',opts:['IP address','DNS server address','TCP/IP connection','First-hop router address'],exp:'DHCP يوفر: IP address، DNS server، first-hop router. لا يوفر TCP/IP connection.'},
+ans:2},
+
+{id:11,ch:'4',type:'mcq',hot:true,year:'1446+1447',
+en:{q:'What is the primary purpose of NAT?',opts:['Translate domain names to IP','Allow private IPs to share one public IP to communicate with the internet','Fragment large packets','Assign IPs dynamically'],exp:'NAT allows private IPs (e.g. 10.0.0.x) to communicate with the internet using a single public IP.'},
+ar:{q:'الهدف الأساسي من NAT؟',opts:['تحويل أسماء النطاقات لـ IP','السماح للـ private IPs بالتواصل مع الإنترنت باستخدام IP عام واحد','تقطيع الـ packets الكبيرة','توزيع الـ IP addresses'],exp:'NAT يسمح للـ private IPs داخل الشبكة بالتواصل مع الإنترنت باستخدام IP عام واحد.'},
+ans:1},
+
+{id:12,ch:'4',type:'mcq',hot:true,year:'1447',
+en:{q:'Why does ICMPv6 have a "Packet Too Big" message?',opts:['Because IPv6 has larger packets','Because IPv6 does not allow fragmentation by routers','Because IPv6 has no checksum','Because IPv6 uses multicast'],exp:'In IPv6, routers do NOT perform fragmentation. So if a packet is larger than MTU, the router sends "Packet Too Big" to the source.'},
+ar:{q:'ليش IPv6 عنده رسالة "Packet Too Big"؟',opts:['لأن IPv6 عنده packets أكبر','لأن IPv6 لا يسمح للـ routers بالتقطيع','لأن IPv6 ما عنده checksum','لأن IPv6 يستخدم multicast'],exp:'في IPv6، الـ routers لا تقوم بالـ fragmentation. لذلك إذا كان الـ packet أكبر من الـ MTU، يُرسَل Packet Too Big للـ source.'},
+ans:1},
+
+{id:13,ch:'4',type:'mcq',hot:true,year:'Repeated',
+en:{q:'Which feature was REMOVED from IPv6 compared to IPv4?',opts:['Source address','Destination address','Checksum','Flow label'],exp:'IPv6 removed: checksum and router fragmentation. Added: fixed 40-byte header, flow label, ICMPv6 Packet Too Big.'},
+ar:{q:'ما الذي أزاله IPv6 مقارنة بـ IPv4؟',opts:['Source address','Destination address','Checksum','Flow label'],exp:'IPv6 أزال: checksum وfragmentation by routers. أضاف: fixed 40-byte header وflow label.'},
+ans:2},
+
+{id:14,ch:'4',type:'tf',hot:true,year:'Corona',
+en:{q:'A datagram with Frag Flag=0 and Offset=0 means it is the first fragment of a fragmented datagram.',exp:'False! Flag=0 and Offset=0 means the datagram is NOT fragmented at all. The first fragment has Flag=1 and Offset=0.'},
+ar:{q:'Frag Flag=0 وOffset=0 يعني هذا أول fragment من datagram مجزأ.',exp:'خطأ! Flag=0 وOffset=0 يعني الـ datagram غير مجزأ أصلاً. الـ fragment الأول يكون Flag=1 وOffset=0.'},
+ans:false},
+
+{id:15,ch:'4',type:'tf',hot:true,year:'Corona',
+en:{q:'The flagfrag field value for the last fragment should be 0.',exp:'True! Last fragment: Flag=0 (no more fragments) and Offset ≠ 0.'},
+ar:{q:'قيمة الـ flagfrag للـ last fragment تساوي 0.',exp:'صح! Last fragment: Flag=0 (no more fragments) وOffset ≠ 0.'},
+ans:true},
+
+{id:16,ch:'4',type:'tf',hot:true,year:'Corona',
+en:{q:'Two fragmented datagrams with different IDs will be reassembled together into one datagram.',exp:'False! Reassembly uses both Identification AND source IP. Different IDs = different original datagrams.'},
+ar:{q:'جهازين لهم نفس الـ identification field يعني سيتم تجميع fragments الاثنين معاً.',exp:'خطأ! التجميع يعتمد على identification + source IP. ID مختلفة = لا تُجمع.'},
+ans:false},
+
+{id:17,ch:'4',type:'mcq',hot:true,year:'Corona',
+en:{q:'A router receives a datagram with 5000 bytes of data, MTU=1500, header=20. How many fragments are generated?',opts:['2','3','4','5'],exp:'Each fragment carries 1480 bytes. 1480+1480+1480=4440, remaining=560. So 4 fragments total.'},
+ar:{q:'Datagram 5000 bytes data، MTU=1500، header=20. كم fragment ينتج؟',opts:['2','3','4','5'],exp:'كل fragment يحمل 1480 bytes. 1480+1480+1480=4440، الباقي 560. إذن 4 fragments.'},
+ans:2},
+
+{id:18,ch:'4',type:'tf',hot:true,year:'Corona',
+en:{q:'With NAT, if you change your ISP you also have to change the addresses of devices in your local network.',exp:'False! Internal devices use private IPs that never change. Only the external public IP changes.'},
+ar:{q:'NAT: لو غيرت الـ ISP لازم تغير عناوين الأجهزة في شبكتك الداخلية.',exp:'خطأ! الأجهزة الداخلية تستخدم private IPs ولا تتغير. فقط الـ public IP الخارجي يتغير.'},
+ans:false},
+
+{id:19,ch:'4',type:'tf',hot:true,year:'Corona',
+en:{q:'All datagrams leaving the private network have a single source NAT IP address, but different source port numbers.',exp:'True! This is the essence of NAT. Each device gets a different port number when going out.'},
+ar:{q:'كل الـ datagrams الخارجة من الشبكة الداخلية لها نفس الـ source NAT IP لكن port numbers مختلفة.',exp:'صح! هذا هو جوهر NAT. كل جهاز يُعطى port مختلف عند الخروج.'},
+ans:true},
+
+{id:20,ch:'4',type:'mcq',hot:false,year:'Corona',
+en:{q:'The IPv6 header size is:',opts:['Always 20 bytes','20 to 40 bytes','Always 40 bytes','Depends on MTU'],exp:'IPv6 header = fixed 40 bytes always. IPv4 header = minimum 20 bytes.'},
+ar:{q:'حجم الـ IPv6 header؟',opts:['دائماً 20 bytes','من 20 إلى 40 bytes','دائماً 40 bytes','يعتمد على MTU'],exp:'IPv6 header = fixed 40 bytes دائماً. IPv4 header = minimum 20 bytes.'},
+ans:2},
+
+{id:21,ch:'4',type:'mcq',hot:false,year:'Corona',
+en:{q:'Two IPv6 nodes want to interoperate but are connected via IPv4 routers. The best solution is:',opts:['No solution','Replace the system','Dual-stack','Tunneling'],exp:'Tunneling: encapsulates IPv6 datagram inside IPv4 datagram to pass through IPv4 routers.'},
+ar:{q:'جهازين IPv6 متصلين بـ routers من نوع IPv4. ما الحل؟',opts:['لا يوجد حل','استبدال النظام','Dual-stack','Tunneling'],exp:'Tunneling: يُغلف الـ IPv6 datagram داخل IPv4 datagram للمرور عبر الـ IPv4 routers.'},
+ans:3},
+
+{id:22,ch:'4',type:'mcq',hot:true,year:'Corona',
+en:{q:'The TTL field value in the IP datagram is _____ at each router.',opts:['Unchanged','Duplicated','Incremented','Decremented'],exp:'Each router decrements TTL by 1. When it reaches 0, the datagram is discarded and ICMP TTL expired is sent to source.'},
+ar:{q:'الـ TTL في الـ IP datagram يتغير عند كل روتر كيف؟',opts:['لا يتغير','يتضاعف','يزيد بمقدار 1','ينقص بمقدار 1'],exp:'كل روتر ينقص TTL بمقدار 1. لما يصل للصفر يُرمى الـ datagram ويُرسل ICMP TTL expired للمصدر.'},
+ans:3},
+
+// ═══ CH5 ═══
+{id:23,ch:'5',type:'mcq',hot:true,year:'1447',
+en:{q:'Which routing protocol uses a distance vector algorithm?',opts:['OSPF','BGP','RIP','ICMP'],exp:'RIP = Distance Vector + Bellman-Ford + hop count. OSPF = Link State + Dijkstra.'},
+ar:{q:'أي بروتوكول يستخدم Distance Vector؟',opts:['OSPF','BGP','RIP','ICMP'],exp:'RIP = Distance Vector + Bellman-Ford + hop count. OSPF = Link State + Dijkstra.'},
+ans:2},
+
+{id:24,ch:'5',type:'mcq',hot:true,year:'1447',
+en:{q:'Which routing protocol uses a link-state algorithm?',opts:['RIP','BGP','OSPF','IGRP'],exp:'OSPF = Link State + Dijkstra. Every router knows the complete network topology.'},
+ar:{q:'أي بروتوكول يستخدم Link State؟',opts:['RIP','BGP','OSPF','IGRP'],exp:'OSPF = Link State + Dijkstra. كل روتر يعرف الخريطة الكاملة للشبكة.'},
+ans:2},
+
+{id:25,ch:'5',type:'mcq',hot:true,year:'Repeated',
+en:{q:'In RIP, infinity = 16 means:',opts:['Maximum 16 routers in network','16 hops means the destination is unreachable','Packets travel 16 km max','16 ms maximum delay'],exp:'RIP: infinity=16 → max network diameter=15 hops. If hop count reaches 16, destination is unreachable.'},
+ar:{q:'infinity = 16 في RIP يعني؟',opts:['أقصى عدد روترات 16','لو وصل hop count لـ 16 الوجهة غير متاحة','الـ packet يسافر 16 كيلومتر','تأخير 16ms'],exp:'RIP: infinity=16 → max network diameter=15 hops. لو وصل 16 = unreachable.'},
+ans:1},
+
+{id:26,ch:'5',type:'mcq',hot:true,year:'1447',
+en:{q:'In RIP, when do routers exchange routing tables?',opts:['Only at startup','Every 30 seconds OR when there is a change','Only when there is a failure','Every hour'],exp:'RIP: Periodic updates every 30 seconds + Triggered updates when a change occurs.'},
+ar:{q:'متى تتبادل الروترات جداول التوجيه في RIP؟',opts:['عند بدء التشغيل فقط','كل 30 ثانية أو عند تغيير','عند وجود عطل فقط','كل ساعة'],exp:'RIP: Periodic updates كل 30 ثانية + Triggered updates عند التغيير.'},
+ans:1},
+
+{id:27,ch:'5',type:'mcq',hot:true,year:'1446+1447',
+en:{q:'BGP (Border Gateway Protocol) is used for:',opts:['Intra-AS routing','Link-state routing','Inter-AS routing between ISPs','Error reporting'],exp:'BGP = inter-AS routing protocol that glues thousands of ISPs together on the internet.'},
+ar:{q:'وظيفة BGP؟',opts:['التوجيه داخل الـ AS','Link State routing','التوجيه بين الـ ISPs المختلفة','الإبلاغ عن الأخطاء'],exp:'BGP = inter-AS routing protocol يربط كل ISPs في الإنترنت.'},
+ans:2},
+
+{id:28,ch:'5',type:'mcq',hot:true,year:'Corona+1444',
+en:{q:'A BGP session that spans two different ASes is called:',opts:['eBGP','iBGP','OSPF','RIP'],exp:'eBGP = External BGP between different ASes. iBGP = Internal BGP within the same AS.'},
+ar:{q:'الجلسة بين روترين من شبكتين مختلفتين تسمى؟',opts:['eBGP','iBGP','OSPF','RIP'],exp:'eBGP = External BGP بين ASes مختلفة. iBGP = Internal BGP داخل نفس الـ AS.'},
+ans:0},
+
+{id:29,ch:'5',type:'mcq',hot:true,year:'Corona',
+en:{q:'What is the BGP route selection order?',opts:['Shortest AS-PATH → Highest Local-Pref → Closest NEXT-HOP','Highest Local-Pref → Shortest AS-PATH → Closest NEXT-HOP','Lowest cost → BGP path → OSPF path','Random selection'],exp:'Order: 1) Highest Local-Preference 2) Shortest AS-PATH 3) Closest NEXT-HOP (Hot Potato).'},
+ar:{q:'ترتيب اختيار المسار في BGP؟',opts:['أقصر AS-PATH ثم أعلى Local Preference ثم أقرب NEXT-HOP','أعلى Local Preference ثم أقصر AS-PATH ثم أقرب NEXT-HOP','أقل تكلفة ثم BGP ثم OSPF','اختيار عشوائي'],exp:'الترتيب: 1) أعلى Local Preference 2) أقصر AS-PATH 3) أقرب NEXT-HOP (Hot Potato).'},
+ans:1},
+
+{id:30,ch:'5',type:'mcq',hot:true,year:'Corona',
+en:{q:'What is "Hot Potato Routing"?',opts:['Route with the lowest cost inside the AS','Route with the highest local preference','Get packet out of AS as fast as possible via the closest NEXT-HOP','Route with the shortest AS-PATH'],exp:'Hot Potato = get rid of the packet as fast as possible via the closest gateway inside the AS.'},
+ar:{q:'معنى Hot Potato Routing؟',opts:['اختيار أقل تكلفة داخل الـ AS','اختيار أعلى Local Preference','إخراج الـ packet من الـ AS بأسرع وقت عبر أقرب NEXT-HOP','اختيار أقصر AS-PATH'],exp:'Hot Potato = تخلص من الـ packet بأسرع وقت عبر أقرب gateway داخل الـ AS.'},
+ans:2},
+
+{id:31,ch:'5',type:'tf',hot:true,year:'Corona',
+en:{q:'When the gateway-router learns about multiple paths to a destination, it will advertise both paths to all routers in the same AS.',exp:'False! BGP selects only ONE path and advertises only that one.'},
+ar:{q:'Gateway router يعلن عن كلا المسارين عندما يتعلم عن مسارات متعددة لنفس الوجهة.',exp:'خطأ! BGP يختار مسار واحد فقط ويعلن عنه.'},
+ans:false},
+
+{id:32,ch:'5',type:'mcq',hot:true,year:'1446',
+en:{q:'AS3 and AS2 run OSPF. AS1 runs RIP. Which protocol connects them?',opts:['OSPF','RIP','BGP','ICMP'],exp:'Inter-AS routing always uses BGP regardless of the intra-AS protocol used.'},
+ar:{q:'AS3 وAS2 يستخدمون OSPF. AS1 يستخدم RIP. أي بروتوكول يربطهم؟',opts:['OSPF','RIP','BGP','ICMP'],exp:'Inter-AS routing يستخدم دائماً BGP بغض النظر عن الـ intra-AS protocol.'},
+ans:2},
+
+{id:33,ch:'5',type:'mcq',hot:true,year:'Corona',
+en:{q:'ICMP is primarily used for:',opts:['Forwarding','Address mapping','Routing','Error and diagnostic functions'],exp:'ICMP = error reporting + echo request/reply (ping) + traceroute. Carried inside IP datagrams.'},
+ar:{q:'ICMP يستخدم أساساً لـ؟',opts:['Forwarding','Address mapping','Routing','Error and diagnostic functions'],exp:'ICMP = error reporting + echo request/reply (ping) + traceroute. يُحمَّل داخل IP datagrams.'},
+ans:3},
+
+{id:34,ch:'5',type:'mcq',hot:true,year:'Corona',
+en:{q:'ICMP always reports error messages to:',opts:['Next router','Previous router','Destination','Source'],exp:'ICMP always sends error messages back to the original source.'},
+ar:{q:'ICMP يرسل رسائل الأخطاء دائماً إلى؟',opts:['الروتر التالي','الروتر السابق','الوجهة','المصدر'],exp:'ICMP يرسل رسائل الأخطاء دائماً للمصدر الأصلي.'},
+ans:3},
+
+{id:35,ch:'5',type:'tf',hot:false,year:'Corona',
+en:{q:'An AS uses an interior gateway protocol to advertise routes within its domain.',exp:'True! RIP and OSPF are Interior Gateway Protocols that operate within an AS.'},
+ar:{q:'AS يستخدم interior gateway protocol للتوجيه داخلياً.',exp:'صح! RIP وOSPF هما Interior Gateway Protocols تعمل داخل الـ AS.'},
+ans:true},
+
+{id:36,ch:'5',type:'mcq',hot:true,year:'1444',
+en:{q:'What type of routing algorithm is used when the router has complete topology info?',opts:['Decentralized','Centralized — Link State','Dynamic','Static'],exp:'Centralized = Link State. Every router knows the complete topology and runs Dijkstra.'},
+ar:{q:'نوع الخوارزمية لو كل الروترات عندها معلومات كاملة عن الـ topology؟',opts:['Decentralized','Centralized — Link State','Dynamic','Static'],exp:'Centralized = Link State = كل روتر يعرف الخريطة الكاملة ويحسب بـ Dijkstra.'},
+ans:1},
+
+{id:37,ch:'5',type:'mcq',hot:true,year:'Corona',
+en:{q:'Which statement about Local-Preference in BGP is FALSE?',opts:['Local-Pref is used only with iBGP','Local-Pref is a well-known discretionary attribute','Local-Pref identifies the preferred exit path to an external network','The route with the LOWER Local-Pref value is preferred'],exp:'False! The route with the HIGHER Local-Pref is preferred, not lower.'},
+ar:{q:'أي جملة عن Local-Preference في BGP غلط؟',opts:['Local-Pref يستخدم مع iBGP فقط','Local-Pref هي well-known discretionary attribute','Local-Pref تحدد preferred exit path','المسار بأقل Local-Pref يُختار'],exp:'خطأ! المسار بأعلى Local-Pref يُختار، مو الأدنى.'},
+ans:3},
+
+// ═══ CH6 ═══
+{id:38,ch:'6',type:'mcq',hot:true,year:'1447',
+en:{q:'Which error detection technique is used in Ethernet?',opts:['Parity Check','Checksum','CRC — Cyclic Redundancy Check','Hamming Code'],exp:'Ethernet uses CRC for error detection. Checksum is used in TCP/UDP (Transport Layer).'},
+ar:{q:'Ethernet يستخدم أي تقنية لـ error detection؟',opts:['Parity Check','Checksum','CRC — Cyclic Redundancy Check','Hamming Code'],exp:'Ethernet يستخدم CRC للـ error detection. Checksum يستخدم في TCP/UDP.'},
+ans:2},
+
+{id:39,ch:'6',type:'mcq',hot:true,year:'1447',
+en:{q:'In CSMA/CD, a ZERO energy level on the channel indicates:',opts:['Collision occurred','Channel is idle','Frame is being transmitted','Channel is busy'],exp:'Energy levels in CSMA/CD: Zero=idle, Normal=successful transmission, Abnormal(double)=collision.'},
+ar:{q:'في CSMA/CD، Zero energy level على الـ channel يعني؟',opts:['حدث collision','الـ channel فارغ (idle)','يتم الإرسال','الـ channel مشغول'],exp:'Energy levels: Zero=idle, Normal=successful transmission, Abnormal(double normal)=collision.'},
+ans:1},
+
+{id:40,ch:'6',type:'mcq',hot:true,year:'1446',
+en:{q:'Which is NOT a feature of Ethernet?',opts:['Unreliable','Connectionless','Reliable','A and B are both wrong for Ethernet'],exp:'Ethernet is: Unreliable + Connectionless. "Reliable" is NOT a feature of Ethernet.'},
+ar:{q:'أي خاصية لا تنتمي لـ Ethernet؟',opts:['Unreliable','Connectionless','Reliable','أ وب خاطئتان'],exp:'Ethernet: Unreliable + Connectionless. Reliable ليست من خصائصه.'},
+ans:2},
+
+{id:41,ch:'6',type:'mcq',hot:true,year:'1447',
+en:{q:'Which device is described as "transparent" to hosts in Ethernet?',opts:['Router','Hub','Switch','Access Point'],exp:'Switch = transparent: hosts do not know it exists. It is plug-and-play and self-learning.'},
+ar:{q:'أي جهاز يُوصف بأنه transparent للـ hosts؟',opts:['Router','Hub','Switch','Access Point'],exp:'Switch = transparent: الـ hosts لا تعلم بوجوده، plug-and-play self-learning.'},
+ans:2},
+
+{id:42,ch:'6',type:'mcq',hot:true,year:'1446',
+en:{q:'What is the MAC address broadcast address?',opts:['0.0.0.0','255.255.255.255','FF-FF-FF-FF-FF-FF','00-00-00-00-00-00'],exp:'MAC broadcast = FF-FF-FF-FF-FF-FF (48 bits). IP broadcast = 255.255.255.255.'},
+ar:{q:'MAC broadcast address؟',opts:['0.0.0.0','255.255.255.255','FF-FF-FF-FF-FF-FF','00-00-00-00-00-00'],exp:'MAC broadcast = FF-FF-FF-FF-FF-FF (48 bits). IP broadcast = 255.255.255.255.'},
+ans:2},
+
+{id:43,ch:'6',type:'mcq',hot:true,year:'Repeated',
+en:{q:'ARP is used to:',opts:['Find IP from domain name','Find MAC address from IP address','Assign IP addresses dynamically','Route packets between subnets'],exp:'ARP: IP address → MAC address. DNS: domain → IP. DHCP: assigns IP dynamically.'},
+ar:{q:'ARP يستخدم لـ؟',opts:['إيجاد IP من domain name','إيجاد MAC address من IP address','توزيع IP addresses','توجيه الـ packets بين subnets'],exp:'ARP: IP address → MAC address. DNS: domain name → IP. DHCP: assigns IP.'},
+ans:1},
+
+{id:44,ch:'6',type:'mcq',hot:true,year:'Repeated',
+en:{q:'What is the difference between MAC address and IP address?',opts:['Both are 32-bit','MAC is 48-bit flat portable; IP is 32-bit hierarchical','MAC is used for routing; IP for local delivery','No difference'],exp:'MAC: 48-bit, flat, burned in NIC ROM, portable. IP: 32-bit, hierarchical, changes per subnet.'},
+ar:{q:'الفرق بين MAC address وIP address؟',opts:['كلاهما 32-bit','MAC=48-bit flat portable، IP=32-bit hierarchical','MAC للـ routing، IP للـ delivery المحلي','لا فرق'],exp:'MAC: 48-bit، flat، burned in NIC ROM، portable. IP: 32-bit، hierarchical، يتغير حسب الـ subnet.'},
+ans:1},
+
+{id:45,ch:'6',type:'mcq',hot:true,year:'1447',
+en:{q:'What is the difference between Slotted ALOHA and Pure ALOHA?',opts:['No difference','Slotted requires synchronization and has better efficiency (37% vs 18%)','Pure ALOHA is more efficient','Slotted ALOHA has no collisions'],exp:'Slotted ALOHA: synchronized → smaller collision window → 37% efficiency. Pure ALOHA: no sync → 18% efficiency.'},
+ar:{q:'الفرق بين Slotted ALOHA وPure ALOHA؟',opts:['لا فرق','Slotted يحتاج synchronization وكفاءته 37% vs 18%','Pure ALOHA أكفأ','Slotted لا يوجد عنده collisions'],exp:'Slotted ALOHA: synchronized → collision window أصغر → efficiency 37%. Pure ALOHA: no sync → 18%.'},
+ans:1},
+
+{id:46,ch:'6',type:'mcq',hot:true,year:'1446+1447',
+en:{q:'Which MAC protocol has a single point of failure?',opts:['Token Passing','Polling','CSMA/CD','TDMA'],exp:'Polling: master invites slaves → if master fails, entire network is affected = single point of failure.'},
+ar:{q:'أي MAC protocol عنده single point of failure؟',opts:['Token Passing','Polling','CSMA/CD','TDMA'],exp:'Polling: master يدعو الـ slaves → إذا fail المـ master، كل الشبكة تتأثر.'},
+ans:1},
+
+{id:47,ch:'6',type:'mcq',hot:true,year:'Repeated',
+en:{q:'What is the correct protocol order in "A Day in the Life of a Web Request"?',opts:['DNS → DHCP → ARP → HTTP','HTTP → DNS → ARP → DHCP','DHCP → ARP → DNS → HTTP','ARP → DHCP → HTTP → DNS'],exp:'Order: 1) DHCP (get IP) 2) ARP (get router MAC) 3) DNS (get destination IP) 4) HTTP (request page).'},
+ar:{q:'الترتيب الصحيح في "Day in the Life"؟',opts:['DNS → DHCP → ARP → HTTP','HTTP → DNS → ARP → DHCP','DHCP → ARP → DNS → HTTP','ARP → DHCP → HTTP → DNS'],exp:'الترتيب: 1) DHCP للحصول على IP. 2) ARP لمعرفة MAC الـ router. 3) DNS لمعرفة IP الوجهة. 4) HTTP لطلب الصفحة.'},
+ans:2},
+
+{id:48,ch:'6',type:'mcq',hot:true,year:'1446',
+en:{q:'The DNS query is encapsulated in:',opts:['TCP','UDP','Both','Neither'],exp:'DNS uses UDP to avoid connection establishment delay.'},
+ar:{q:'DNS query تُرسَل عبر؟',opts:['TCP','UDP','كلاهما','لا شيء'],exp:'DNS يستخدم UDP لأنه يتجنب الـ connection establishment delay.'},
+ans:1},
+
+{id:49,ch:'6',type:'mcq',hot:true,year:'Corona',
+en:{q:'When sending an ARP request, the destination MAC address in the frame is:',opts:['Destination host MAC','Source host MAC','FF-FF-FF-FF-FF-FF (broadcast)','00-00-00-00-00-00'],exp:'ARP request is sent as broadcast because the destination MAC is unknown.'},
+ar:{q:'عند إرسال ARP request، الـ destination MAC في الـ frame هو؟',opts:['MAC address الوجهة','MAC address المصدر','FF-FF-FF-FF-FF-FF (broadcast)','00-00-00-00-00-00'],exp:'ARP request تُرسَل كـ broadcast لأننا لا نعرف MAC الوجهة بعد.'},
+ans:2},
+
+{id:50,ch:'6',type:'mcq',hot:true,year:'Corona',
+en:{q:'Host A sends a packet to remote Host B through router RTG. What is the destination MAC of the frame leaving Host A?',opts:['MAC of B','MAC of A','MAC of RTG','FF-FF-FF-FF-FF-FF'],exp:'MAC address changes at each hop. When leaving A: destination MAC = MAC of RTG (the adjacent router).'},
+ar:{q:'Host A يرسل packet لـ Host B في شبكة بعيدة عبر Router RTG. ما الـ destination MAC عند خروج الـ frame من A؟',opts:['MAC address of B','MAC address of A','MAC address of RTG','FF-FF-FF-FF-FF-FF'],exp:'MAC address يتغير في كل hop. عند الخروج من A: destination MAC = MAC of RTG.'},
+ans:2},
+
+{id:51,ch:'6',type:'mcq',hot:true,year:'Corona',
+en:{q:'What will a Layer 2 switch do when the destination MAC is NOT in its table?',opts:['Notify the sending host','Forward out all ports except the receiving port (Flood)','Broadcast to all ports','Initiate an ARP request'],exp:'Flood = forward to all ports except the receiving port when destination MAC is unknown.'},
+ar:{q:'Switch يستقبل frame بـ destination MAC غير موجود في جدوله، ماذا يفعل؟',opts:['يُبلغ المرسل','يُرسله لكل ports ما عدا port الاستقبال (Flood)','يُرسله لكل ports','يطلب ARP'],exp:'Flood = يُرسل لكل ports ما عدا port الاستقبال عندما لا يعرف الـ destination.'},
+ans:1},
+
+{id:52,ch:'6',type:'mcq',hot:true,year:'Corona',
+en:{q:'In CSMA, the possibility of collision still exists because of:',opts:['Transmit delay','Sender-receiver delay','Sense delay','Propagation delay'],exp:'Propagation delay: a station cannot hear another station at the exact same moment due to distance.'},
+ar:{q:'في CSMA، احتمالية الـ collision لا تزال موجودة بسبب؟',opts:['Transmission delay','Sender-receiver delay','Sense delay','Propagation delay'],exp:'Propagation delay: الـ station لا تسمع إرسال الـ station الأخرى في نفس اللحظة بسبب المسافة.'},
+ans:3},
+
+{id:53,ch:'6',type:'mcq',hot:true,year:'Corona',
+en:{q:'_____ is a feature in CSMA/CD which is NOT present in CSMA.',opts:['Timer','Acknowledgment','Retransmission','Jamming signal'],exp:'Jamming signal: in CSMA/CD, when collision is detected, a jamming signal stops all transmissions.'},
+ar:{q:'ما الذي يميز CSMA/CD عن CSMA؟',opts:['Timer','Acknowledgment','Retransmission','Jamming signal'],exp:'Jamming signal: في CSMA/CD عند اكتشاف الـ collision يُرسل jamming signal لإيقاف كل الإرسال.'},
+ans:3},
+
+{id:54,ch:'6',type:'tf',hot:true,year:'Corona',
+en:{q:'In token-passing, stations must be organized in a physical ring.',exp:'False! Token Passing uses a LOGICAL ring, not necessarily a physical ring.'},
+ar:{q:'Token Passing: الـ stations منظمة في Physical Ring.',exp:'خطأ! Token Passing يستخدم Logical Ring وليس Physical Ring بالضرورة.'},
+ans:false},
+
+{id:55,ch:'6',type:'mcq',hot:true,year:'Corona',
+en:{q:'To allow communication between hosts on different VLANs, what is needed?',opts:['A switch with a trunk link','A router with an IP on the physical interface','A router with subinterfaces configured','A switch with an access link'],exp:'To communicate between different VLANs, a router with subinterfaces is needed (Router on a Stick).'},
+ar:{q:'لتواصل hosts من VLANs مختلفة، ما المطلوب؟',opts:['Switch بـ trunk link','Router بـ IP على الـ physical interface','Router بـ subinterfaces','Switch بـ access link'],exp:'للتواصل بين VLANs مختلفة نحتاج Router بـ subinterfaces (Router on a Stick).'},
+ans:2},
+
+{id:56,ch:'6',type:'mcq',hot:true,year:'Corona',
+en:{q:'Which error detection method uses one\'s complement arithmetic?',opts:['CRC','Simple parity check','Two-dimensional parity','Checksum'],exp:'Checksum uses 1\'s complement arithmetic. CRC uses binary division.'},
+ar:{q:'أي error detection method يستخدم one\'s complement arithmetic؟',opts:['CRC','Simple parity check','Two-dimensional parity','Checksum'],exp:'Checksum يستخدم 1\'s complement arithmetic. CRC يستخدم binary division.'},
+ans:3},
+
+{id:57,ch:'6',type:'mcq',hot:true,year:'Corona',
+en:{q:'What is the use of the preamble field in a data frame?',opts:['To synchronize machines','For error control','Used as an entry point','For error correction'],exp:'Preamble = 7 bytes used to synchronize the receiver clock with the sender clock.'},
+ar:{q:'Preamble field في الـ data frame يستخدم لـ؟',opts:['مزامنة الأجهزة','error control','entry point','error correction'],exp:'Preamble = 7 bytes تستخدم لمزامنة clock الـ receiver مع الـ sender.'},
+ans:0},
+
+{id:58,ch:'6',type:'mcq',hot:true,year:'Corona',
+en:{q:'B and J transmit simultaneously; collision occurs closer to J. Who detects it first?',opts:['B detects before J','J detects before B','Neither detects it','Both at the same time'],exp:'J is closer to the collision point, so J detects it first.'},
+ar:{q:'B وJ يرسلان في نفس الوقت وحدث collision أقرب لـ J. من يكتشف الـ collision أولاً؟',opts:['B يكتشف قبل J','J يكتشف قبل B','لا أحد يكتشف','كلاهما في نفس الوقت'],exp:'J أقرب لمكان الـ collision من B، لذلك J يكتشفها أولاً.'},
+ans:1},
+];
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('btn-en').classList.toggle('active', l === 'en');
+  document.getElementById('btn-ar').classList.toggle('active', l === 'ar');
+  const isAr = l === 'ar';
+  document.documentElement.lang = l;
+  document.querySelector('.header-label').textContent = isAr ? 'شبكات — IT328' : 'IT328 — Networks';
+  document.querySelector('.header h1').innerHTML = isAr ? 'اختبار <span>النتورك</span>' : 'Final <span>Quiz</span>';
+  document.querySelector('.header p').textContent = isAr ? 'الفصول 4 · 5 · 6 — جميع الاختبارات السابقة' : 'Chapters 4 · 5 · 6 — All Previous Exams';
+  document.querySelectorAll('.pill')[0].textContent = isAr ? 'الكل' : 'All';
+  document.querySelectorAll('.pill')[4].textContent = isAr ? 'الكل' : 'All types';
+  document.querySelectorAll('.pill')[5].textContent = 'MCQ';
+  document.querySelectorAll('.pill')[6].textContent = isAr ? 'صح/خطأ' : 'True / False';
+  document.querySelectorAll('.pill')[7].textContent = isAr ? 'عبي الفراغ' : 'Fill';
+  document.getElementById('reset-btn').textContent = isAr ? 'إعادة تعيين' : 'Reset all';
+  document.querySelector('.stat-item.correct').innerHTML = isAr ? 'صحيح <strong id="sc">' + correct + '</strong>' : 'Correct <strong id="sc">' + correct + '</strong>';
+  document.querySelector('.stat-item.wrong').innerHTML = isAr ? 'خطأ <strong id="sw">' + wrong + '</strong>' : 'Wrong <strong id="sw">' + wrong + '</strong>';
+  document.querySelectorAll('.stat-item')[2].innerHTML = isAr ? 'الإجمالي <strong id="st">' + (correct+wrong) + '</strong>' : 'Total <strong id="st">' + (correct+wrong) + '</strong>';
+  render();
+}
+
+function getFiltered() {
+  return Q.filter(q => {
+    const chOk = currentCh === 'all' || q.ch === currentCh;
+    const typeOk = currentType === 'all' || q.type === currentType;
+    return chOk && typeOk;
+  });
+}
+
+function render() {
+  const list = document.getElementById('qlist');
+  const filtered = getFiltered();
+  const isAr = lang === 'ar';
+  if (filtered.length === 0) { list.innerHTML = `<div class="no-q">${isAr ? 'لا توجد أسئلة' : 'No questions found.'}</div>`; return; }
+  list.innerHTML = '';
+  filtered.forEach(q => {
+    const s = answered[q.id];
+    const d = q[lang];
+    const div = document.createElement('div');
+    div.className = 'q-card' + (s ? (s.correct ? ' answered-correct' : ' answered-wrong') : '');
+    div.dir = isAr ? 'rtl' : 'ltr';
+
+    const chTag = `<span class="tag tag-ch${q.ch}">Ch${q.ch}</span>`;
+    const typeLabel = q.type === 'mcq' ? 'MCQ' : q.type === 'tf' ? (isAr ? 'صح/خطأ' : 'True/False') : (isAr ? 'عبي الفراغ' : 'Fill');
+    const typeTag = `<span class="tag tag-${q.type}">${typeLabel}</span>`;
+    const hotTag = q.hot ? `<span class="tag tag-hot">${isAr ? 'متكرر' : 'Repeated'}</span>` : '';
+    const yearTag = `<span class="tag tag-year">${q.year}</span>`;
+
+    let input = '';
+    if (q.type === 'mcq') {
+      input = '<div class="options">' + d.opts.map((o, i) => {
+        let cls = 'opt'; if(isAr) cls += ' '; cls = isAr ? 'opt' : 'opt';
+        if (s) { if (i === q.ans) cls += ' correct'; else if (s.chosen === i) cls += ' wrong'; }
+        return `<button class="${cls}" dir="${isAr?'rtl':'ltr'}" onclick="answerMCQ(${q.id},${i})" ${s?'disabled':''}>${String.fromCharCode(65+i)}) ${o}</button>`;
+      }).join('') + '</div>';
+    } else if (q.type === 'tf') {
+      const tCls = 'tf-btn' + (s ? (q.ans===true?' correct':(s.chosen===true?' wrong':'')) : '');
+      const fCls = 'tf-btn' + (s ? (q.ans===false?' correct':(s.chosen===false?' wrong':'')) : '');
+      const trueLabel = isAr ? 'صحيح' : 'True';
+      const falseLabel = isAr ? 'خطأ' : 'False';
+      input = `<div class="tf-row"><button class="${tCls}" onclick="answerTF(${q.id},true)" ${s?'disabled':''}>${trueLabel}</button><button class="${fCls}" onclick="answerTF(${q.id},false)" ${s?'disabled':''}>${falseLabel}</button></div>`;
+    } else {
+      input = `<div class="fill-row"><input class="fill-input" id="fill${q.id}" placeholder="${isAr?'اكتب الإجابة...':'Type your answer...'}" ${s?'disabled':''} value="${s?s.userAns||'':''}"><button class="check-btn" onclick="answerFill(${q.id})" ${s?'disabled':''}>${isAr?'تحقق':'Check'}</button></div>`;
+    }
+
+    const expLabel = isAr ? 'التفسير' : 'Explanation';
+    div.innerHTML = `<div class="q-meta">${chTag}${typeTag}${hotTag}${yearTag}</div><div class="q-text">${d.q}</div>${input}<div class="exp ${s?'show':''}" id="exp${q.id}"><strong>${expLabel}:</strong> ${d.exp}</div>`;
+    list.appendChild(div);
+  });
+}
+
+function answerMCQ(id, chosen) {
+  if (answered[id]) return;
+  const q = Q.find(x => x.id === id);
+  const isCorrect = chosen === q.ans;
+  answered[id] = { correct: isCorrect, chosen };
+  if (isCorrect) correct++; else wrong++;
+  updateStats(); render();
+}
+function answerTF(id, val) {
+  if (answered[id]) return;
+  const q = Q.find(x => x.id === id);
+  const isCorrect = val === q.ans;
+  answered[id] = { correct: isCorrect, chosen: val };
+  if (isCorrect) correct++; else wrong++;
+  updateStats(); render();
+}
+function answerFill(id) {
+  if (answered[id]) return;
+  const q = Q.find(x => x.id === id);
+  const userAns = document.getElementById('fill'+id).value.trim().toLowerCase();
+  const isCorrect = userAns.includes(q.ans.toLowerCase()) || q.ans.toLowerCase().includes(userAns);
+  answered[id] = { correct: isCorrect, userAns };
+  if (isCorrect) correct++; else wrong++;
+  updateStats(); render();
+}
+function updateStats() {
+  document.getElementById('sc').textContent = correct;
+  document.getElementById('sw').textContent = wrong;
+  document.getElementById('st').textContent = correct + wrong;
+  document.getElementById('prog').style.width = ((correct+wrong)/Q.length*100) + '%';
+}
+function filterCh(ch, btn) {
+  currentCh = ch;
+  document.querySelectorAll('.filter-group:first-child .pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+function filterType(type, btn) {
+  currentType = type;
+  document.querySelectorAll('.filter-group:last-child .pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+function resetAll() {
+  answered = {}; correct = 0; wrong = 0;
+  updateStats(); render();
+}
+render();
+</script>
+</body>
+</html>
